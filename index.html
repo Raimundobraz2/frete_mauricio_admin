@@ -1,0 +1,1507 @@
+<!DOCTYPE html>
+<html lang="pt-AO">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Frete Maurício</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --red: #e8001d;
+    --dark-red: #b0001a;
+    --black: #07090f;
+    --dark: #0f1117;
+    --card: #161b27;
+    --card2: #1c2336;
+    --border: rgba(255,255,255,.07);
+    --white: #f0f2f8;
+    --gray: #7a8499;
+    --green: #22c55e;
+    --yellow: #f59e0b;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --gold: #f5c518;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { font-family:'Nunito',sans-serif; background:var(--black); color:var(--white); min-height:100vh; overflow-x:hidden; }
+
+  /* ======= LOGIN ======= */
+  #loginScreen {
+    position:fixed; inset:0; z-index:9999;
+    background: radial-gradient(ellipse at 60% 40%, rgba(232,0,29,.12) 0%, transparent 60%), var(--black);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .login-box {
+    background:var(--card); border:1px solid rgba(232,0,29,.2);
+    border-radius:28px; padding:3rem 2.8rem; width:420px; max-width:95vw;
+    box-shadow:0 30px 100px rgba(0,0,0,.6), 0 0 60px rgba(232,0,29,.08);
+    animation: popIn .5s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes popIn { from{opacity:0;transform:scale(.85)} to{opacity:1;transform:scale(1)} }
+  .login-logo { font-family:'Bebas Neue',sans-serif; font-size:2.4rem; letter-spacing:2px; margin-bottom:.2rem; }
+  .login-logo span { color:var(--red); }
+  .login-sub { color:var(--gray); font-size:.85rem; margin-bottom:2.5rem; display:flex; align-items:center; gap:.4rem; }
+  .login-sub i { color:var(--red); }
+  .login-field { margin-bottom:1.3rem; }
+  .login-field label { display:flex; align-items:center; gap:.5rem; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--gray); margin-bottom:.5rem; }
+  .login-field label i { color:var(--red); }
+  .login-field input {
+    width:100%; background:rgba(255,255,255,.05); border:1.5px solid var(--border);
+    border-radius:12px; padding:.85rem 1.1rem; color:var(--white);
+    font-family:'Nunito',sans-serif; font-size:.95rem; outline:none;
+    transition:border-color .25s, background .25s;
+  }
+  .login-field input:focus { border-color:var(--red); background:rgba(232,0,29,.05); }
+  .login-btn {
+    width:100%; background:var(--red); color:#fff; border:none; border-radius:50px;
+    padding:1rem; font-family:'Nunito',sans-serif; font-size:1rem; font-weight:800;
+    cursor:pointer; transition:background .25s, transform .2s;
+    display:flex; align-items:center; justify-content:center; gap:.6rem; margin-top:.5rem;
+  }
+  .login-btn:hover { background:var(--dark-red); transform:translateY(-2px); }
+  .login-error { color:var(--red); font-size:.85rem; text-align:center; margin-top:.8rem; display:none; }
+
+  /* ======= LAYOUT ======= */
+  #adminApp { display:none; min-height:100vh; flex-direction:row; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width:260px; background:var(--dark); border-right:1px solid var(--border);
+    position:fixed; top:0; left:0; bottom:0; z-index:100;
+    display:flex; flex-direction:column; padding:0 0 1.5rem;
+    transition:transform .3s;
+  }
+  .sidebar-logo {
+    padding:1.5rem 1.5rem 1rem;
+    border-bottom:1px solid var(--border);
+    font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:2px;
+  }
+  .sidebar-logo span { color:var(--red); }
+  .sidebar-badge { font-size:.6rem; background:var(--red); color:#fff; padding:.15rem .5rem; border-radius:50px; font-family:'Nunito',sans-serif; font-weight:800; letter-spacing:1px; vertical-align:middle; margin-left:.3rem; }
+  .sidebar-nav { flex:1; padding:1rem 0; overflow-y:auto; }
+  .nav-section-label { font-size:.68rem; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:var(--gray); padding:.8rem 1.5rem .4rem; }
+  .nav-item {
+    display:flex; align-items:center; gap:.9rem;
+    padding:.75rem 1.5rem; cursor:pointer; transition:background .2s, color .2s;
+    color:var(--gray); font-weight:700; font-size:.92rem;
+    border-left:3px solid transparent; position:relative;
+  }
+  .nav-item i { width:18px; text-align:center; font-size:.95rem; }
+  .nav-item:hover { background:rgba(255,255,255,.04); color:var(--white); }
+  .nav-item.active { background:rgba(232,0,29,.1); color:var(--red); border-left-color:var(--red); }
+  .nav-badge { margin-left:auto; background:var(--red); color:#fff; font-size:.65rem; font-weight:800; padding:.1rem .45rem; border-radius:50px; }
+  .sidebar-user {
+    padding:1rem 1.5rem; border-top:1px solid var(--border);
+    display:flex; align-items:center; gap:.8rem;
+  }
+  .user-avatar {
+    width:38px; height:38px; border-radius:50%; background:rgba(232,0,29,.15);
+    border:2px solid var(--red); display:flex; align-items:center; justify-content:center;
+    font-size:1rem; color:var(--red); flex-shrink:0;
+  }
+  .user-name { font-weight:800; font-size:.88rem; }
+  .user-role { font-size:.72rem; color:var(--gray); }
+  .logout-btn { margin-left:auto; background:none; border:none; color:var(--gray); cursor:pointer; font-size:.95rem; transition:color .2s; }
+  .logout-btn:hover { color:var(--red); }
+
+  /* MAIN */
+  .main { margin-left:260px; min-height:100vh; display:flex; flex-direction:column; flex:1; }
+
+  /* TOPBAR */
+  .topbar {
+    background:var(--dark); border-bottom:1px solid var(--border);
+    padding:1rem 2rem; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:50;
+  }
+  .topbar-left h1 { font-family:'Bebas Neue',sans-serif; font-size:1.8rem; letter-spacing:1px; }
+  .topbar-left p { font-size:.82rem; color:var(--gray); margin-top:.1rem; }
+  .topbar-right { display:flex; align-items:center; gap:1rem; }
+  .topbar-search {
+    display:flex; align-items:center; gap:.6rem;
+    background:rgba(255,255,255,.05); border:1px solid var(--border);
+    border-radius:10px; padding:.5rem 1rem;
+  }
+  .topbar-search i { color:var(--gray); font-size:.85rem; }
+  .topbar-search input { background:none; border:none; outline:none; color:var(--white); font-family:'Nunito',sans-serif; font-size:.88rem; width:180px; }
+  .topbar-search input::placeholder { color:var(--gray); }
+  .topbar-icon-btn {
+    width:38px; height:38px; border-radius:10px; background:rgba(255,255,255,.05);
+    border:1px solid var(--border); display:flex; align-items:center; justify-content:center;
+    cursor:pointer; color:var(--gray); transition:color .2s, background .2s; position:relative;
+  }
+  .topbar-icon-btn:hover { color:var(--white); background:rgba(255,255,255,.08); }
+  .notif-dot { position:absolute; top:6px; right:6px; width:7px; height:7px; background:var(--red); border-radius:50%; border:1.5px solid var(--dark); }
+
+  /* CONTENT */
+  .content { flex:1; padding:2rem; }
+
+  /* PAGES */
+  .page { display:none; }
+  .page.active { display:block; }
+
+  /* ======= DASHBOARD ======= */
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; margin-bottom:2rem; }
+  .stat-card {
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:1.4rem 1.5rem; position:relative; overflow:hidden;
+    transition:transform .25s, box-shadow .25s;
+  }
+  .stat-card:hover { transform:translateY(-3px); box-shadow:0 10px 30px rgba(0,0,0,.3); }
+  .stat-card::after { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+  .stat-card.red::after { background:var(--red); }
+  .stat-card.green::after { background:var(--green); }
+  .stat-card.yellow::after { background:var(--yellow); }
+  .stat-card.blue::after { background:var(--blue); }
+  .stat-icon { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.1rem; margin-bottom:1rem; }
+  .si-red { background:rgba(232,0,29,.15); color:var(--red); }
+  .si-green { background:rgba(34,197,94,.15); color:var(--green); }
+  .si-yellow { background:rgba(245,158,11,.15); color:var(--yellow); }
+  .si-blue { background:rgba(59,130,246,.15); color:var(--blue); }
+  .stat-val { font-family:'Bebas Neue',sans-serif; font-size:2.2rem; line-height:1; }
+  .stat-lbl { font-size:.78rem; color:var(--gray); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-top:.3rem; }
+  .stat-trend { display:flex; align-items:center; gap:.3rem; font-size:.75rem; font-weight:700; margin-top:.6rem; }
+  .trend-up { color:var(--green); }
+  .trend-dn { color:var(--red); }
+
+  .dash-grid { display:grid; grid-template-columns:1fr 300px; gap:1.5rem; margin-bottom:1.5rem; }
+  .dash-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+
+  .panel { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:1.5rem; }
+  .panel-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.3rem; }
+  .panel-title { font-weight:800; font-size:1rem; display:flex; align-items:center; gap:.5rem; }
+  .panel-title i { color:var(--red); }
+  .panel-action { font-size:.78rem; color:var(--red); cursor:pointer; font-weight:700; }
+  .panel-action:hover { text-decoration:underline; }
+
+  /* Chart bars */
+  .chart-wrap { display:flex; align-items:flex-end; gap:.4rem; height:130px; padding-top:10px; }
+  .bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:.3rem; height:100%; justify-content:flex-end; }
+  .bar { width:100%; min-height:6px; background:rgba(232,0,29,.18); border-radius:6px 6px 0 0; transition:background .25s; cursor:pointer; }
+  .bar:hover { background:var(--red); }
+  .bar-lbl { flex:1; font-size:.62rem; color:var(--gray); font-weight:700; text-align:center; }
+
+  /* Donut chart */
+  .donut-wrap { display:flex; flex-direction:column; align-items:center; gap:1rem; }
+  .donut { width:120px; height:120px; position:relative; }
+  .donut svg { transform:rotate(-90deg); }
+  .donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .donut-center .dnum { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; line-height:1; color:var(--white); }
+  .donut-center .dlbl { font-size:.6rem; color:var(--gray); font-weight:800; text-transform:uppercase; letter-spacing:1px; }
+  .donut-legend { width:100%; display:flex; flex-direction:column; gap:.5rem; }
+  .legend-item { display:flex; align-items:center; gap:.6rem; font-size:.8rem; }
+  .legend-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+  .legend-lbl { color:var(--gray); flex:1; }
+  .legend-val { font-weight:800; }
+
+  /* ======= ORDERS TABLE ======= */
+  .table-toolbar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.2rem; gap:1rem; flex-wrap:wrap; }
+  .filter-tabs { display:flex; gap:.4rem; }
+  .filter-tab { padding:.4rem 1rem; border-radius:50px; font-size:.78rem; font-weight:800; cursor:pointer; border:1.5px solid var(--border); color:var(--gray); transition:all .2s; }
+  .filter-tab.active, .filter-tab:hover { border-color:var(--red); color:var(--red); background:rgba(232,0,29,.08); }
+  .toolbar-right { display:flex; gap:.7rem; }
+  .btn-sm {
+    padding:.45rem 1rem; border-radius:10px; font-size:.78rem; font-weight:800; cursor:pointer;
+    border:1.5px solid var(--border); color:var(--gray); background:var(--card2);
+    display:flex; align-items:center; gap:.4rem; transition:all .2s;
+  }
+  .btn-sm:hover { border-color:var(--red); color:var(--red); }
+  .btn-sm.primary { background:var(--red); color:#fff; border-color:var(--red); }
+  .btn-sm.primary:hover { background:var(--dark-red); }
+
+  table { width:100%; border-collapse:collapse; }
+  th { text-align:left; font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; color:var(--gray); padding:.7rem 1rem; border-bottom:1px solid var(--border); }
+  td { padding:.85rem 1rem; border-bottom:1px solid rgba(255,255,255,.04); font-size:.88rem; vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(255,255,255,.02); }
+  .order-id { font-weight:800; color:var(--red); font-size:.82rem; }
+  .client-cell { display:flex; align-items:center; gap:.7rem; }
+  .c-avatar { width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid var(--border); }
+  .c-avatar-letter { width:34px; height:34px; border-radius:50%; background:rgba(232,0,29,.15); border:2px solid rgba(232,0,29,.2); display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; color:var(--red); flex-shrink:0; }
+  .c-name { font-weight:700; font-size:.88rem; }
+  .c-phone { font-size:.75rem; color:var(--gray); }
+  .status-badge { padding:.25rem .8rem; border-radius:50px; font-size:.72rem; font-weight:800; letter-spacing:.5px; display:inline-block; }
+  .s-pending { background:rgba(245,158,11,.12); color:var(--yellow); border:1px solid rgba(245,158,11,.25); }
+  .s-active { background:rgba(59,130,246,.12); color:var(--blue); border:1px solid rgba(59,130,246,.25); }
+  .s-done { background:rgba(34,197,94,.12); color:var(--green); border:1px solid rgba(34,197,94,.25); }
+  .s-cancelled { background:rgba(232,0,29,.1); color:var(--red); border:1px solid rgba(232,0,29,.2); }
+  .action-btns { display:flex; gap:.4rem; }
+  .action-btn { width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:.78rem; cursor:pointer; transition:all .2s; border:none; }
+  .ab-view { background:rgba(59,130,246,.12); color:var(--blue); }
+  .ab-view:hover { background:var(--blue); color:#fff; }
+  .ab-edit { background:rgba(245,158,11,.12); color:var(--yellow); }
+  .ab-edit:hover { background:var(--yellow); color:#000; }
+  .ab-del { background:rgba(232,0,29,.1); color:var(--red); }
+  .ab-del:hover { background:var(--red); color:#fff; }
+  .ab-done { background:rgba(34,197,94,.12); color:var(--green); }
+  .ab-done:hover { background:var(--green); color:#fff; }
+
+  /* ======= CLIENTS ======= */
+  .clients-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:1.2rem; }
+  .client-card {
+    background:var(--card); border:1px solid var(--border); border-radius:18px;
+    padding:1.5rem; text-align:center; transition:transform .25s, border-color .25s;
+  }
+  .client-card:hover { transform:translateY(-3px); border-color:rgba(232,0,29,.3); }
+  .client-card .c-avatar-lg { width:64px; height:64px; border-radius:50%; background:rgba(232,0,29,.1); border:3px solid rgba(232,0,29,.25); display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:800; color:var(--red); margin:0 auto 1rem; }
+  .client-card h3 { font-size:1rem; font-weight:800; margin-bottom:.2rem; }
+  .client-card .c-info { font-size:.8rem; color:var(--gray); margin-bottom:.8rem; display:flex; flex-direction:column; gap:.2rem; }
+  .client-card .c-info i { color:var(--red); margin-right:.3rem; }
+  .client-stats-mini { display:flex; justify-content:center; gap:1.5rem; padding:.8rem 0; border-top:1px solid var(--border); border-bottom:1px solid var(--border); margin-bottom:.8rem; }
+  .csm-num { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--red); line-height:1; }
+  .csm-lbl { font-size:.65rem; color:var(--gray); font-weight:700; text-transform:uppercase; letter-spacing:.5px; }
+  .client-tags { display:flex; justify-content:center; gap:.4rem; flex-wrap:wrap; }
+  .tag { padding:.2rem .65rem; border-radius:50px; font-size:.68rem; font-weight:800; }
+  .tag-regular { background:rgba(59,130,246,.12); color:var(--blue); }
+  .tag-vip { background:rgba(245,197,24,.12); color:var(--gold); }
+  .tag-new { background:rgba(34,197,94,.12); color:var(--green); }
+  .tag-empresa { background:rgba(168,85,247,.12); color:var(--purple); }
+
+  /* ======= MOTOBOYS ======= */
+  .motoboy-table-wrap { overflow-x:auto; }
+  .availability { display:flex; align-items:center; gap:.4rem; font-size:.82rem; font-weight:700; }
+  .avail-dot { width:8px; height:8px; border-radius:50%; }
+  .av-online { background:var(--green); box-shadow:0 0 6px var(--green); }
+  .av-busy { background:var(--yellow); box-shadow:0 0 6px var(--yellow); }
+  .av-offline { background:var(--gray); }
+  .stars-mini { color:var(--gold); font-size:.75rem; }
+
+  /* ======= MODAL ======= */
+  .modal-overlay {
+    position:fixed; inset:0; background:rgba(0,0,0,.7); z-index:500;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none; transition:opacity .25s;
+    backdrop-filter:blur(4px);
+  }
+  .modal-overlay.open { opacity:1; pointer-events:all; }
+  .modal {
+    background:var(--card); border:1px solid rgba(232,0,29,.2);
+    border-radius:24px; padding:2rem; width:520px; max-width:95vw; max-height:90vh; overflow-y:auto;
+    transform:scale(.92); transition:transform .25s;
+  }
+  .modal-overlay.open .modal { transform:scale(1); }
+  .modal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.5rem; }
+  .modal-title { font-family:'Bebas Neue',sans-serif; font-size:1.6rem; letter-spacing:1px; }
+  .modal-close { background:none; border:none; color:var(--gray); font-size:1.2rem; cursor:pointer; transition:color .2s; }
+  .modal-close:hover { color:var(--red); }
+  .modal-field { margin-bottom:1.2rem; }
+  .modal-field label { display:flex; align-items:center; gap:.4rem; font-size:.78rem; font-weight:800; text-transform:uppercase; letter-spacing:1px; color:var(--gray); margin-bottom:.4rem; }
+  .modal-field label i { color:var(--red); }
+  .modal-field input, .modal-field select, .modal-field textarea {
+    width:100%; background:rgba(255,255,255,.05); border:1.5px solid var(--border);
+    border-radius:10px; padding:.75rem 1rem; color:var(--white);
+    font-family:'Nunito',sans-serif; font-size:.9rem; outline:none;
+    transition:border-color .25s;
+  }
+  .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus { border-color:var(--red); }
+  .modal-field select option { background:#1c2336; }
+  .modal-field textarea { min-height:80px; resize:vertical; }
+  .modal-grid2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .modal-footer { display:flex; gap:.8rem; margin-top:1.5rem; }
+  .modal-btn { flex:1; padding:.85rem; border-radius:50px; font-family:'Nunito',sans-serif; font-weight:800; font-size:.9rem; cursor:pointer; transition:all .2s; display:flex; align-items:center; justify-content:center; gap:.5rem; }
+  .modal-btn.cancel { background:rgba(255,255,255,.05); border:1.5px solid var(--border); color:var(--gray); }
+  .modal-btn.cancel:hover { border-color:var(--red); color:var(--red); }
+  .modal-btn.save { background:var(--red); border:none; color:#fff; }
+  .modal-btn.save:hover { background:var(--dark-red); }
+
+  /* ORDER DETAIL MODAL */
+  .detail-section { margin-bottom:1.4rem; padding-bottom:1.2rem; border-bottom:1px solid var(--border); }
+  .detail-section:last-child { border-bottom:none; }
+  .detail-section h4 { font-size:.75rem; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:var(--gray); margin-bottom:.8rem; display:flex; align-items:center; gap:.4rem; }
+  .detail-section h4 i { color:var(--red); }
+  .detail-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:.5rem; }
+  .detail-key { font-size:.82rem; color:var(--gray); }
+  .detail-val { font-size:.88rem; font-weight:700; text-align:right; }
+
+  /* TIMELINE */
+  .timeline { display:flex; flex-direction:column; gap:0; }
+  .tl-item { display:flex; gap:.9rem; }
+  .tl-left { display:flex; flex-direction:column; align-items:center; }
+  .tl-dot { width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:.7rem; flex-shrink:0; }
+  .tl-done { background:rgba(34,197,94,.15); color:var(--green); border:2px solid var(--green); }
+  .tl-active { background:rgba(59,130,246,.15); color:var(--blue); border:2px solid var(--blue); animation:pulse-blue .8s ease infinite; }
+  .tl-wait { background:rgba(255,255,255,.05); color:var(--gray); border:2px solid var(--border); }
+  @keyframes pulse-blue { 0%,100%{box-shadow:0 0 0 0 rgba(59,130,246,.4)} 50%{box-shadow:0 0 0 6px rgba(59,130,246,0)} }
+  .tl-line { flex:1; width:2px; background:var(--border); margin:.2rem auto; min-height:20px; }
+  .tl-line.done-line { background:var(--green); }
+  .tl-content { padding-bottom:1rem; }
+  .tl-title { font-size:.88rem; font-weight:800; }
+  .tl-time { font-size:.72rem; color:var(--gray); margin-top:.1rem; }
+
+  /* TOAST */
+  .toast {
+    position:fixed; bottom:1.5rem; right:1.5rem; z-index:9998;
+    background:var(--card2); border:1px solid rgba(34,197,94,.3);
+    border-radius:14px; padding:.9rem 1.4rem;
+    display:flex; align-items:center; gap:.7rem; font-weight:700; font-size:.88rem;
+    box-shadow:0 10px 40px rgba(0,0,0,.4);
+    transform:translateY(100px); opacity:0; transition:all .35s cubic-bezier(.34,1.56,.64,1);
+    pointer-events:none;
+  }
+  .toast.show { transform:translateY(0); opacity:1; }
+  .toast-icon { color:var(--green); font-size:1rem; }
+  .toast.error { border-color:rgba(232,0,29,.3); }
+  .toast.error .toast-icon { color:var(--red); }
+
+  /* SETTINGS */
+  .settings-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+  .settings-section { background:var(--card); border:1px solid var(--border); border-radius:18px; padding:1.5rem; }
+  .settings-section h3 { font-weight:800; font-size:.95rem; margin-bottom:1.2rem; display:flex; align-items:center; gap:.5rem; }
+  .settings-section h3 i { color:var(--red); }
+  .setting-row { display:flex; align-items:center; justify-content:space-between; padding:.7rem 0; border-bottom:1px solid rgba(255,255,255,.04); }
+  .setting-row:last-child { border-bottom:none; }
+  .setting-label { font-size:.88rem; }
+  .setting-desc { font-size:.75rem; color:var(--gray); margin-top:.1rem; }
+  /* Toggle */
+  .toggle { position:relative; width:42px; height:22px; }
+  .toggle input { opacity:0; width:0; height:0; }
+  .toggle-slider { position:absolute; inset:0; background:rgba(255,255,255,.1); border-radius:50px; cursor:pointer; transition:.3s; }
+  .toggle-slider::before { content:''; position:absolute; height:16px; width:16px; left:3px; bottom:3px; background:#fff; border-radius:50%; transition:.3s; }
+  .toggle input:checked + .toggle-slider { background:var(--red); }
+  .toggle input:checked + .toggle-slider::before { transform:translateX(20px); }
+
+  /* RESPONSIVE */
+  @media(max-width:1200px) {
+    .dash-grid { grid-template-columns:1fr; }
+    .settings-grid { grid-template-columns:1fr; }
+  }
+  @media(max-width:1024px) {
+    .stats-grid { grid-template-columns:repeat(2,1fr); }
+    .dash-grid2 { grid-template-columns:1fr; }
+  }
+  @media(max-width:768px) {
+    .sidebar { transform:translateX(-100%); }
+    .sidebar.open { transform:translateX(0); }
+    .main { margin-left:0; }
+    .stats-grid { grid-template-columns:repeat(2,1fr); }
+  }
+
+  /* EMPTY STATE */
+  .empty-state { text-align:center; padding:4rem 2rem; color:var(--gray); }
+  .empty-state i { font-size:3rem; color:rgba(255,255,255,.08); margin-bottom:1rem; }
+  .empty-state p { font-size:.9rem; }
+
+  /* Notification list */
+  .notif-list { display:flex; flex-direction:column; gap:.8rem; }
+  .notif-item { display:flex; gap:.9rem; padding:.9rem; background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:12px; }
+  .notif-item i { color:var(--red); margin-top:.1rem; flex-shrink:0; }
+  .notif-msg { font-size:.85rem; }
+  .notif-time { font-size:.72rem; color:var(--gray); margin-top:.2rem; }
+  .notif-item.unread { border-left:3px solid var(--red); }
+
+  /* Map placeholder */
+  .map-area { background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:14px; height:200px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:.5rem; color:var(--gray); }
+  .map-area i { font-size:2.5rem; color:rgba(232,0,29,.3); }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">Frete <span>Maurício</span></div>
+    <div class="login-sub"><i class="fa-solid fa-shield-halved"></i> Painel Administrativo</div>
+    <div class="login-field">
+      <label><i class="fa-solid fa-user"></i> Utilizador</label>
+      <input type="text" id="loginUser" placeholder="admin" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label><i class="fa-solid fa-lock"></i> Palavra-passe</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">
+      <i class="fa-solid fa-right-to-bracket"></i> Entrar no Painel
+    </button>
+    <p class="login-error" id="loginError"><i class="fa-solid fa-circle-exclamation"></i> Credenciais inválidas</p>
+    <p style="text-align:center;font-size:.72rem;color:var(--gray);margin-top:1.5rem">
+      Demo: <strong style="color:var(--white)">admin</strong> / <strong style="color:var(--white)">admin123</strong>
+    </p>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div id="adminApp">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      Frete <span>Maurício</span>
+      <span class="sidebar-badge">ADMIN</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+      <div class="nav-item active" data-page="dashboard" onclick="goPage('dashboard', this)">
+        <i class="fa-solid fa-chart-pie"></i> Dashboard
+      </div>
+      <div class="nav-item" data-page="pedidos" onclick="goPage('pedidos', this)">
+        <i class="fa-solid fa-box"></i> Pedidos
+        <span class="nav-badge" id="navBadgePedidos">3</span>
+      </div>
+      <div class="nav-item" data-page="motoboys" onclick="goPage('motoboys', this)">
+        <i class="fa-solid fa-motorcycle"></i> Motoboys
+      </div>
+      <div class="nav-item" data-page="clientes" onclick="goPage('clientes', this)">
+        <i class="fa-solid fa-users"></i> Clientes
+      </div>
+
+      <div class="nav-section-label">Gestão</div>
+      <div class="nav-item" data-page="relatorios" onclick="goPage('relatorios', this)">
+        <i class="fa-solid fa-chart-bar"></i> Relatórios
+      </div>
+      <div class="nav-item" data-page="notificacoes" onclick="goPage('notificacoes', this)">
+        <i class="fa-solid fa-bell"></i> Notificações
+        <span class="nav-badge">5</span>
+      </div>
+      <div class="nav-item" data-page="configuracoes" onclick="goPage('configuracoes', this)">
+        <i class="fa-solid fa-gear"></i> Configurações
+      </div>
+    </nav>
+    <div class="sidebar-user">
+      <div class="user-avatar"><i class="fa-solid fa-user"></i></div>
+      <div>
+        <div class="user-name">Maurício Admin</div>
+        <div class="user-role"><i class="fa-solid fa-circle" style="color:var(--green);font-size:.45rem;margin-right:.3rem"></i>Online</div>
+      </div>
+      <button class="logout-btn" onclick="doLogout()" title="Sair"><i class="fa-solid fa-right-from-bracket"></i></button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">Dashboard</h1>
+        <p id="pageDate"></p>
+      </div>
+      <div class="topbar-right">
+        <div class="topbar-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Pesquisar pedidos...">
+        </div>
+        <div class="topbar-icon-btn" onclick="goPage('notificacoes', document.querySelector('[data-page=notificacoes]'))">
+          <i class="fa-solid fa-bell"></i>
+          <div class="notif-dot"></div>
+        </div>
+        <div class="topbar-icon-btn">
+          <i class="fa-solid fa-expand"></i>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="page active" id="page-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card red">
+            <div class="stat-icon si-red"><i class="fa-solid fa-box"></i></div>
+            <div class="stat-val" id="statTotal">24</div>
+            <div class="stat-lbl">Pedidos Hoje</div>
+            <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +12% esta semana</div>
+          </div>
+          <div class="stat-card green">
+            <div class="stat-icon si-green"><i class="fa-solid fa-circle-check"></i></div>
+            <div class="stat-val">18</div>
+            <div class="stat-lbl">Concluídos</div>
+            <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> 75% taxa de sucesso</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-icon si-yellow"><i class="fa-solid fa-clock"></i></div>
+            <div class="stat-val">3</div>
+            <div class="stat-lbl">Em Andamento</div>
+            <div class="stat-trend" style="color:var(--yellow)"><i class="fa-solid fa-circle-dot"></i> Activos agora</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-icon si-blue"><i class="fa-solid fa-money-bill-wave"></i></div>
+            <div class="stat-val">85K</div>
+            <div class="stat-lbl">Receita (AOA)</div>
+            <div class="stat-trend trend-up"><i class="fa-solid fa-arrow-trend-up"></i> +8% este mês</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <!-- Chart -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fa-solid fa-chart-line"></i> Pedidos por Dia (Fev)</div>
+              <span class="panel-action">Ver detalhe</span>
+            </div>
+            <div class="chart-wrap" id="chartBars"></div>
+            <div style="display:flex;gap:.4rem;margin-top:.3rem" id="chartLabels"></div>
+          </div>
+          <!-- Donut -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fa-solid fa-chart-pie"></i> Por Serviço</div>
+            </div>
+            <div class="donut-wrap">
+              <div class="donut">
+                <svg viewBox="0 0 42 42" width="120" height="120">
+                  <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#1c2336" stroke-width="5"/>
+                  <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#e8001d" stroke-width="5" stroke-dasharray="45 55" stroke-dashoffset="0"/>
+                  <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#3b82f6" stroke-width="5" stroke-dasharray="25 75" stroke-dashoffset="-45"/>
+                  <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#22c55e" stroke-width="5" stroke-dasharray="20 80" stroke-dashoffset="-70"/>
+                  <circle cx="21" cy="21" r="15.9155" fill="transparent" stroke="#f59e0b" stroke-width="5" stroke-dasharray="10 90" stroke-dashoffset="-90"/>
+                </svg>
+                <div class="donut-center">
+                  <div class="dnum">24</div>
+                  <div class="dlbl">Total</div>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div><span class="legend-lbl">Motoboy</span><span class="legend-val">45%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--blue)"></div><span class="legend-lbl">Compras</span><span class="legend-val">25%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div><span class="legend-lbl">Comida</span><span class="legend-val">20%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:var(--yellow)"></div><span class="legend-lbl">Empresas</span><span class="legend-val">10%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-grid2" style="margin-top:1.5rem">
+          <!-- Recent orders -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fa-solid fa-clock-rotate-left"></i> Pedidos Recentes</div>
+              <span class="panel-action" onclick="goPage('pedidos', document.querySelector('[data-page=pedidos]'))">Ver todos</span>
+            </div>
+            <table>
+              <thead><tr><th>ID</th><th>Cliente</th><th>Serviço</th><th>Estado</th></tr></thead>
+              <tbody id="recentOrdersBody"></tbody>
+            </table>
+          </div>
+          <!-- Motoboys online -->
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fa-solid fa-motorcycle"></i> Motoboys Activos</div>
+              <span class="panel-action" onclick="goPage('motoboys', document.querySelector('[data-page=motoboys]'))">Ver todos</span>
+            </div>
+            <div id="motoboyStatusList" style="display:flex;flex-direction:column;gap:.8rem"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== PEDIDOS ===== -->
+      <div class="page" id="page-pedidos">
+        <div class="table-toolbar">
+          <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterOrders('todos',this)">Todos</div>
+            <div class="filter-tab" onclick="filterOrders('pendente',this)">Pendentes</div>
+            <div class="filter-tab" onclick="filterOrders('activo',this)">Activos</div>
+            <div class="filter-tab" onclick="filterOrders('concluido',this)">Concluídos</div>
+            <div class="filter-tab" onclick="filterOrders('cancelado',this)">Cancelados</div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn-sm"><i class="fa-solid fa-filter"></i> Filtrar</button>
+            <button class="btn-sm primary" onclick="openModal('newOrder')"><i class="fa-solid fa-plus"></i> Novo Pedido</button>
+          </div>
+        </div>
+        <div class="panel" style="padding:0;overflow:hidden">
+          <div style="overflow-x:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th><th>Cliente</th><th>Serviço</th><th>Recolha</th><th>Entrega</th><th>Motoboy</th><th>Estado</th><th>Hora</th><th>Acções</th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== MOTOBOYS ===== -->
+      <div class="page" id="page-motoboys">
+        <div class="table-toolbar">
+          <div class="filter-tabs">
+            <div class="filter-tab active">Todos</div>
+            <div class="filter-tab">Online</div>
+            <div class="filter-tab">Ocupado</div>
+            <div class="filter-tab">Offline</div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn-sm primary" onclick="openModal('newMotoboy')"><i class="fa-solid fa-plus"></i> Adicionar Motoboy</button>
+          </div>
+        </div>
+        <div class="panel" style="padding:0;overflow:hidden">
+          <div class="motoboy-table-wrap">
+            <table>
+              <thead>
+                <tr><th>Motoboy</th><th>Telefone</th><th>Zona</th><th>Estado</th><th>Pedidos Hoje</th><th>Avaliação</th><th>Mota</th><th>Acções</th></tr>
+              </thead>
+              <tbody id="motoboyBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CLIENTES ===== -->
+      <div class="page" id="page-clientes">
+        <div class="table-toolbar">
+          <div class="filter-tabs">
+            <div class="filter-tab active">Todos</div>
+            <div class="filter-tab">VIP</div>
+            <div class="filter-tab">Empresas</div>
+            <div class="filter-tab">Novos</div>
+          </div>
+          <div class="toolbar-right">
+            <button class="btn-sm primary" onclick="openModal('newClient')"><i class="fa-solid fa-plus"></i> Novo Cliente</button>
+          </div>
+        </div>
+        <div class="clients-grid" id="clientsGrid"></div>
+      </div>
+
+      <!-- ===== RELATÓRIOS ===== -->
+      <div class="page" id="page-relatorios">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2rem">
+          <div class="panel" style="text-align:center">
+            <div style="font-size:2rem;color:var(--red);margin-bottom:.5rem"><i class="fa-solid fa-boxes-stacked"></i></div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--white)">148</div>
+            <div style="font-size:.78rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:1px">Total Pedidos (Fev)</div>
+          </div>
+          <div class="panel" style="text-align:center">
+            <div style="font-size:2rem;color:var(--green);margin-bottom:.5rem"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--white)">520K</div>
+            <div style="font-size:.78rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:1px">Receita Mensal (AOA)</div>
+          </div>
+          <div class="panel" style="text-align:center">
+            <div style="font-size:2rem;color:var(--gold);margin-bottom:.5rem"><i class="fa-solid fa-star"></i></div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--white)">4.8</div>
+            <div style="font-size:.78rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:1px">Avaliação Média</div>
+          </div>
+        </div>
+        <div class="dash-grid2">
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fa-solid fa-chart-bar"></i> Pedidos por Serviço</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.8rem;margin-top:.5rem">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem"><span>Motoboy</span><span style="font-weight:800">67 pedidos</span></div>
+                <div style="height:8px;background:rgba(255,255,255,.06);border-radius:50px"><div style="height:100%;width:45%;background:var(--red);border-radius:50px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem"><span>Compras</span><span style="font-weight:800">37 pedidos</span></div>
+                <div style="height:8px;background:rgba(255,255,255,.06);border-radius:50px"><div style="height:100%;width:25%;background:var(--blue);border-radius:50px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem"><span>Comida</span><span style="font-weight:800">30 pedidos</span></div>
+                <div style="height:8px;background:rgba(255,255,255,.06);border-radius:50px"><div style="height:100%;width:20%;background:var(--green);border-radius:50px"></div></div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem"><span>Empresas</span><span style="font-weight:800">14 pedidos</span></div>
+                <div style="height:8px;background:rgba(255,255,255,.06);border-radius:50px"><div style="height:100%;width:10%;background:var(--yellow);border-radius:50px"></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header">
+              <div class="panel-title"><i class="fa-solid fa-map-location-dot"></i> Zonas Mais Activas</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.7rem;margin-top:.5rem">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:rgba(255,255,255,.03);border-radius:10px">
+                <span style="display:flex;align-items:center;gap:.5rem;font-size:.88rem"><i class="fa-solid fa-location-dot" style="color:var(--red)"></i> Talatona</span>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--red)">42</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:rgba(255,255,255,.03);border-radius:10px">
+                <span style="display:flex;align-items:center;gap:.5rem;font-size:.88rem"><i class="fa-solid fa-location-dot" style="color:var(--blue)"></i> Benfica</span>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--blue)">38</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:rgba(255,255,255,.03);border-radius:10px">
+                <span style="display:flex;align-items:center;gap:.5rem;font-size:.88rem"><i class="fa-solid fa-location-dot" style="color:var(--green)"></i> Kilamba</span>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--green)">29</span>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:.6rem .9rem;background:rgba(255,255,255,.03);border-radius:10px">
+                <span style="display:flex;align-items:center;gap:.5rem;font-size:.88rem"><i class="fa-solid fa-location-dot" style="color:var(--yellow)"></i> Viana</span>
+                <span style="font-family:'Bebas Neue',sans-serif;font-size:1.2rem;color:var(--yellow)">21</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NOTIFICAÇÕES ===== -->
+      <div class="page" id="page-notificacoes">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title"><i class="fa-solid fa-bell"></i> Notificações Recentes</div>
+            <span class="panel-action">Marcar todas como lidas</span>
+          </div>
+          <div class="notif-list">
+            <div class="notif-item unread"><i class="fa-solid fa-box fa-fw"></i><div><div class="notif-msg">Novo pedido <strong>#FM-028</strong> recebido de Ana Silva — Entrega Motoboy em Talatona</div><div class="notif-time"><i class="fa-regular fa-clock"></i> Há 5 minutos</div></div></div>
+            <div class="notif-item unread"><i class="fa-solid fa-motorcycle fa-fw"></i><div><div class="notif-msg">Carlos Mota ficou <strong>disponível</strong> para novos pedidos</div><div class="notif-time"><i class="fa-regular fa-clock"></i> Há 12 minutos</div></div></div>
+            <div class="notif-item unread"><i class="fa-solid fa-circle-check fa-fw" style="color:var(--green)"></i><div><div class="notif-msg">Pedido <strong>#FM-027</strong> concluído com sucesso! Cliente avaliou 5 estrelas</div><div class="notif-time"><i class="fa-regular fa-clock"></i> Há 25 minutos</div></div></div>
+            <div class="notif-item unread"><i class="fa-solid fa-star fa-fw" style="color:var(--gold)"></i><div><div class="notif-msg">Nova avaliação: Pedro Lopes deu <strong>5 estrelas</strong> ao serviço</div><div class="notif-time"><i class="fa-regular fa-clock"></i> Há 1 hora</div></div></div>
+            <div class="notif-item"><i class="fa-solid fa-triangle-exclamation fa-fw" style="color:var(--yellow)"></i><div><div class="notif-msg">Pedido <strong>#FM-025</strong> está com atraso — verificar estado do motoboy</div><div class="notif-time"><i class="fa-regular fa-clock"></i> Há 2 horas</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CONFIGURAÇÕES ===== -->
+      <div class="page" id="page-configuracoes">
+        <div class="settings-grid">
+          <div class="settings-section">
+            <h3><i class="fa-solid fa-bell"></i> Notificações</h3>
+            <div class="setting-row">
+              <div><div class="setting-label">Novos Pedidos</div><div class="setting-desc">Alertar quando chegar novo pedido</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">Pedidos Concluídos</div><div class="setting-desc">Notificar quando entrega terminar</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">Alertas de Atraso</div><div class="setting-desc">Avisar sobre entregas com atraso</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">Avaliações de Clientes</div><div class="setting-desc">Receber notificação de reviews</div></div>
+              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3><i class="fa-solid fa-store"></i> Empresa</h3>
+            <div class="modal-field">
+              <label><i class="fa-solid fa-building"></i> Nome da Empresa</label>
+              <input type="text" value="Frete Maurício">
+            </div>
+            <div class="modal-field">
+              <label><i class="fa-solid fa-phone"></i> Telefone Principal</label>
+              <input type="tel" value="+244 943 173 267">
+            </div>
+            <div class="modal-field">
+              <label><i class="fa-brands fa-whatsapp"></i> WhatsApp</label>
+              <input type="tel" value="+244 943 173 267">
+            </div>
+            <button class="form-submit" style="margin-top:.5rem;border:none;border-radius:50px;padding:.75rem;cursor:pointer;background:var(--red);color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;gap:.5rem"><i class="fa-solid fa-floppy-disk"></i> Guardar Alterações</button>
+          </div>
+          <div class="settings-section">
+            <h3><i class="fa-solid fa-lock"></i> Segurança</h3>
+            <div class="modal-field">
+              <label><i class="fa-solid fa-key"></i> Palavra-passe Actual</label>
+              <input type="password" placeholder="••••••••">
+            </div>
+            <div class="modal-field">
+              <label><i class="fa-solid fa-key"></i> Nova Palavra-passe</label>
+              <input type="password" placeholder="••••••••">
+            </div>
+            <div class="modal-field">
+              <label><i class="fa-solid fa-key"></i> Confirmar</label>
+              <input type="password" placeholder="••••••••">
+            </div>
+            <button onclick="showToast('Palavra-passe actualizada!')" style="margin-top:.3rem;border:none;border-radius:50px;padding:.75rem 1.5rem;cursor:pointer;background:var(--red);color:#fff;font-weight:800;font-size:.85rem"><i class="fa-solid fa-floppy-disk"></i> Actualizar</button>
+          </div>
+          <div class="settings-section">
+            <h3><i class="fa-solid fa-palette"></i> Aparência</h3>
+            <div class="setting-row">
+              <div><div class="setting-label">Modo Escuro</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">Sidebar Compacta</div></div>
+              <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div><div class="setting-label">Animações</div></div>
+              <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /adminApp -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- NEW ORDER MODAL -->
+<div class="modal-overlay" id="modal-newOrder">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-box-open" style="color:var(--red)"></i> Novo Pedido</div>
+      <button class="modal-close" onclick="closeModal('newOrder')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-user"></i> Cliente</label>
+        <input type="text" placeholder="Nome do cliente">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-phone"></i> Telefone</label>
+        <input type="tel" placeholder="+244 9XX XXX XXX">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label><i class="fa-solid fa-list"></i> Tipo de Serviço</label>
+      <select>
+        <option>Entrega Motoboy</option>
+        <option>Compras por Encomenda</option>
+        <option>Delivery de Comida</option>
+        <option>Serviço para Empresa</option>
+        <option>Transporte de Mercadorias</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label><i class="fa-solid fa-map-pin"></i> Endereço de Recolha</label>
+      <input type="text" placeholder="Local de recolha">
+    </div>
+    <div class="modal-field">
+      <label><i class="fa-solid fa-location-arrow"></i> Endereço de Entrega</label>
+      <input type="text" placeholder="Local de entrega">
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-motorcycle"></i> Motoboy</label>
+        <select>
+          <option>Carlos Mota</option>
+          <option>João Faria</option>
+          <option>Miguel Santos</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-money-bill"></i> Valor (AOA)</label>
+        <input type="number" placeholder="0">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label><i class="fa-solid fa-pen-to-square"></i> Observações</label>
+      <textarea placeholder="Detalhes adicionais..."></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('newOrder')"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="modal-btn save" onclick="saveOrder()"><i class="fa-solid fa-plus"></i> Criar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="modal-overlay" id="modal-orderDetail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="detailOrderId">Pedido #FM-001</div>
+      <button class="modal-close" onclick="closeModal('orderDetail')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="orderDetailContent"></div>
+  </div>
+</div>
+
+<!-- NEW MOTOBOY MODAL -->
+<div class="modal-overlay" id="modal-newMotoboy">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-motorcycle" style="color:var(--red)"></i> Novo Motoboy</div>
+      <button class="modal-close" onclick="closeModal('newMotoboy')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-user"></i> Nome Completo</label>
+        <input type="text" placeholder="Nome do motoboy">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-phone"></i> Telefone</label>
+        <input type="tel" placeholder="+244 9XX XXX XXX">
+      </div>
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-id-card"></i> BI / Documento</label>
+        <input type="text" placeholder="Número do BI">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-map-location-dot"></i> Zona Principal</label>
+        <select>
+          <option>Talatona</option>
+          <option>Benfica</option>
+          <option>Kilamba</option>
+          <option>Viana</option>
+          <option>Luanda Centro</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label><i class="fa-solid fa-motorcycle"></i> Mota / Matrícula</label>
+      <input type="text" placeholder="Ex: Honda CG 150 – LA 12-34 AB">
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('newMotoboy')"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="modal-btn save" onclick="saveMotoboy()"><i class="fa-solid fa-plus"></i> Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- NEW CLIENT MODAL -->
+<div class="modal-overlay" id="modal-newClient">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-user-plus" style="color:var(--red)"></i> Novo Cliente</div>
+      <button class="modal-close" onclick="closeModal('newClient')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-user"></i> Nome</label>
+        <input type="text" placeholder="Nome completo">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-phone"></i> Telefone</label>
+        <input type="tel" placeholder="+244 9XX XXX XXX">
+      </div>
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-map-location-dot"></i> Zona</label>
+        <select>
+          <option>Talatona</option><option>Benfica</option><option>Kilamba</option><option>Viana</option><option>Luanda Centro</option>
+        </select>
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-tag"></i> Tipo</label>
+        <select>
+          <option>Regular</option><option>VIP</option><option>Empresa</option><option>Novo</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('newClient')"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="modal-btn save" onclick="saveClient()"><i class="fa-solid fa-plus"></i> Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<!-- VIEW MOTOBOY MODAL -->
+<div class="modal-overlay" id="modal-viewMotoboy">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="viewMotoboyTitle"><i class="fa-solid fa-motorcycle" style="color:var(--red)"></i> Perfil do Motoboy</div>
+      <button class="modal-close" onclick="closeModal('viewMotoboy')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div id="viewMotoboyContent"></div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('viewMotoboy')"><i class="fa-solid fa-xmark"></i> Fechar</button>
+      <button class="modal-btn save" id="viewMotoboyEditBtn"><i class="fa-solid fa-pen"></i> Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MOTOBOY MODAL -->
+<div class="modal-overlay" id="modal-editMotoboy">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title"><i class="fa-solid fa-pen" style="color:var(--red)"></i> Editar Motoboy</div>
+      <button class="modal-close" onclick="closeModal('editMotoboy')"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <input type="hidden" id="editMotoboyOrigName">
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-user"></i> Nome Completo</label>
+        <input type="text" id="editMName" placeholder="Nome do motoboy">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-phone"></i> Telefone</label>
+        <input type="tel" id="editMPhone" placeholder="+244 9XX XXX XXX">
+      </div>
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-map-location-dot"></i> Zona Principal</label>
+        <input type="text" id="editMZone" placeholder="Ex: Talatona / Benfica">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-circle-dot"></i> Estado</label>
+        <select id="editMStatus">
+          <option value="online">Online</option>
+          <option value="ocupado">Ocupado</option>
+          <option value="offline">Offline</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-field">
+      <label><i class="fa-solid fa-motorcycle"></i> Mota / Matrícula</label>
+      <input type="text" id="editMVehicle" placeholder="Ex: Honda CG 150 – LA 12-34 AB">
+    </div>
+    <div class="modal-grid2">
+      <div class="modal-field">
+        <label><i class="fa-solid fa-box"></i> Pedidos Hoje</label>
+        <input type="number" id="editMOrders" min="0">
+      </div>
+      <div class="modal-field">
+        <label><i class="fa-solid fa-star"></i> Avaliação</label>
+        <input type="number" id="editMRating" min="1" max="5" step="0.1">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="modal-btn cancel" onclick="closeModal('editMotoboy')"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+      <button class="modal-btn save" onclick="saveEditMotoboy()"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <i class="fa-solid fa-circle-check toast-icon" id="toastIcon"></i>
+  <span id="toastMsg"></span>
+</div>
+
+<script>
+/* ============ DATA ============ */
+let orders = [
+  { id:'FM-028', client:'Ana Silva', phone:'+244 921 111 222', service:'Entrega Motoboy', pickup:'Benfica, Rua 5', delivery:'Talatona, Condomínio Sol', motoboy:'Carlos Mota', status:'pendente', time:'09:45', value:2500 },
+  { id:'FM-027', client:'Pedro Lopes', phone:'+244 932 333 444', service:'Compras', pickup:'Supermercado Jumbo', delivery:'Patriota, Casa 12', motoboy:'João Faria', status:'concluido', time:'09:10', value:3000 },
+  { id:'FM-026', client:'Empresa XPTO', phone:'+244 943 555 666', service:'Serviço Empresa', pickup:'Luanda Centro', delivery:'Belas Shopping', motoboy:'Miguel Santos', status:'activo', time:'08:55', value:5000 },
+  { id:'FM-025', client:'Mariana Costa', phone:'+244 912 777 888', service:'Delivery Comida', pickup:'Restaurante Bom Sabor', delivery:'Kilamba, Bloco B', motoboy:'Carlos Mota', status:'activo', time:'08:30', value:1500 },
+  { id:'FM-024', client:'Bruno Dias', phone:'+244 923 999 000', service:'Entrega Motoboy', pickup:'Viana, Loja X', delivery:'Cacuaco, Zona Y', motoboy:'João Faria', status:'cancelado', time:'08:00', value:2000 },
+  { id:'FM-023', client:'Inês Fernandes', phone:'+244 934 100 200', service:'Compras', pickup:'Nosso Super', delivery:'Morro Bento II', motoboy:'Miguel Santos', status:'concluido', time:'07:45', value:3500 },
+];
+
+let motoboys = [
+  { name:'Carlos Mota', phone:'+244 922 100 200', zone:'Talatona / Benfica', status:'online', orders:4, rating:4.9, vehicle:'Honda CG 150 – LA 12-34 AB' },
+  { name:'João Faria', phone:'+244 933 300 400', zone:'Kilamba / Viana', status:'ocupado', orders:6, rating:4.7, vehicle:'Yamaha YBR – LA 56-78 CD' },
+  { name:'Miguel Santos', phone:'+244 911 500 600', zone:'Luanda Centro / Belas', status:'online', orders:3, rating:4.8, vehicle:'Honda Titan – LA 90-12 EF' },
+  { name:'André Alves', phone:'+244 922 700 800', zone:'Cacuaco / Viana', status:'offline', orders:0, rating:4.5, vehicle:'Yamaha Factor – LA 34-56 GH' },
+];
+
+let clients = [
+  { name:'Ana Silva', phone:'+244 921 111 222', zone:'Talatona', orders:12, spent:28000, type:'vip' },
+  { name:'Pedro Lopes', phone:'+244 932 333 444', zone:'Benfica', orders:24, spent:62000, type:'vip' },
+  { name:'Mariana Costa', phone:'+244 912 777 888', zone:'Kilamba', orders:8, spent:18500, type:'regular' },
+  { name:'Empresa XPTO', phone:'+244 943 555 666', zone:'Luanda Centro', orders:45, spent:145000, type:'empresa' },
+  { name:'Bruno Dias', phone:'+244 923 999 000', zone:'Viana', orders:2, spent:4000, type:'new' },
+  { name:'Inês Fernandes', phone:'+244 934 100 200', zone:'Morro Bento', orders:6, spent:14000, type:'regular' },
+];
+
+let currentFilter = 'todos';
+
+/* ============ LOGIN ============ */
+function doLogin() {
+  const u = document.getElementById('loginUser').value;
+  const p = document.getElementById('loginPass').value;
+  const err = document.getElementById('loginError');
+  if (u === 'admin' && p === 'admin123') {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('adminApp').style.display = 'flex';
+    init();
+  } else {
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 2500);
+  }
+}
+function doLogout() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('adminApp').style.display = 'none';
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+/* ============ NAVIGATION ============ */
+function goPage(page, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else {
+    const target = document.querySelector('[data-page=' + page + ']');
+    if (target) target.classList.add('active');
+  }
+  const titles = { dashboard:'Dashboard', pedidos:'Gestão de Pedidos', motoboys:'Motoboys', clientes:'Clientes', relatorios:'Relatórios', notificacoes:'Notificações', configuracoes:'Configurações' };
+  document.getElementById('pageTitle').textContent = titles[page] || page;
+}
+
+/* ============ INIT ============ */
+function init() {
+  const now = new Date();
+  document.getElementById('pageDate').textContent = now.toLocaleDateString('pt-AO', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  renderChart();
+  renderRecentOrders();
+  renderMotoboyStatus();
+  renderOrdersTable();
+  renderMotoboyTable();
+  renderClientsGrid();
+}
+
+/* ============ CHART ============ */
+function renderChart() {
+  const data = [8,12,5,18,14,22,10,16,20,9,24,11,17,8];
+  const labels = ['10','11','12','13','14','15','16','17','18','19','20','21','22','23'];
+  const max = Math.max(...data);
+  const cb = document.getElementById('chartBars');
+  const cl = document.getElementById('chartLabels');
+  cb.innerHTML = ''; cl.innerHTML = '';
+  data.forEach((v, i) => {
+    const col = document.createElement('div');
+    col.className = 'bar-col';
+    col.title = v + ' pedidos no dia ' + labels[i];
+    const bar = document.createElement('div');
+    bar.className = 'bar';
+    bar.style.height = Math.max((v / max * 100), 8) + '%';
+    col.appendChild(bar);
+    cb.appendChild(col);
+    // labels abaixo separados
+    const lbl = document.createElement('div');
+    lbl.className = 'bar-lbl';
+    lbl.textContent = labels[i];
+    cl.appendChild(lbl);
+  });
+}
+
+/* ============ RECENT ORDERS ============ */
+function renderRecentOrders() {
+  const tbody = document.getElementById('recentOrdersBody');
+  tbody.innerHTML = orders.slice(0,5).map(o => `
+    <tr>
+      <td class="order-id">#${o.id}</td>
+      <td>${o.client}</td>
+      <td style="font-size:.8rem;color:var(--gray)">${o.service}</td>
+      <td><span class="status-badge s-${o.status}">${statusLabel(o.status)}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ============ MOTOBOY STATUS ============ */
+function renderMotoboyStatus() {
+  const list = document.getElementById('motoboyStatusList');
+  list.innerHTML = motoboys.map(m => `
+    <div style="display:flex;align-items:center;gap:.8rem;padding:.7rem;background:rgba(255,255,255,.03);border-radius:12px;border:1px solid var(--border)">
+      <div style="width:38px;height:38px;border-radius:50%;background:rgba(232,0,29,.1);border:2px solid rgba(232,0,29,.2);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--red);font-size:.9rem;flex-shrink:0">${m.name.charAt(0)}</div>
+      <div style="flex:1">
+        <div style="font-weight:800;font-size:.88rem">${m.name}</div>
+        <div style="font-size:.72rem;color:var(--gray)">${m.orders} pedidos hoje</div>
+      </div>
+      <div class="availability">
+        <div class="avail-dot av-${m.status === 'online' ? 'online' : m.status === 'ocupado' ? 'busy' : 'offline'}"></div>
+        <span style="font-size:.75rem;color:${m.status === 'online' ? 'var(--green)' : m.status === 'ocupado' ? 'var(--yellow)' : 'var(--gray)'}">${m.status.charAt(0).toUpperCase() + m.status.slice(1)}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============ ORDERS TABLE ============ */
+function statusLabel(s) {
+  return {pendente:'Pendente', activo:'Activo', concluido:'Concluído', cancelado:'Cancelado'}[s] || s;
+}
+
+function renderOrdersTable(filter) {
+  const filtered = filter && filter !== 'todos' ? orders.filter(o => o.status === filter) : orders;
+  const tbody = document.getElementById('ordersBody');
+  if (!filtered.length) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><i class="fa-solid fa-box-open"></i><p>Nenhum pedido encontrado</p></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = filtered.map(o => `
+    <tr>
+      <td class="order-id">#${o.id}</td>
+      <td>
+        <div class="client-cell">
+          <div class="c-avatar-letter">${o.client.charAt(0)}</div>
+          <div><div class="c-name">${o.client}</div><div class="c-phone">${o.phone}</div></div>
+        </div>
+      </td>
+      <td style="font-size:.82rem">${o.service}</td>
+      <td style="font-size:.8rem;color:var(--gray);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.pickup}</td>
+      <td style="font-size:.8rem;color:var(--gray);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${o.delivery}</td>
+      <td style="font-size:.82rem">${o.motoboy}</td>
+      <td><span class="status-badge s-${o.status}">${statusLabel(o.status)}</span></td>
+      <td style="font-size:.8rem;color:var(--gray)">${o.time}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn ab-view" onclick="viewOrder('${o.id}')" title="Ver detalhes"><i class="fa-solid fa-eye"></i></button>
+          ${o.status === 'pendente' ? `<button class="action-btn ab-done" onclick="markDone('${o.id}')" title="Marcar como activo"><i class="fa-solid fa-play"></i></button>` : ''}
+          ${o.status === 'activo' ? `<button class="action-btn ab-done" onclick="markDone('${o.id}')" title="Concluir"><i class="fa-solid fa-check"></i></button>` : ''}
+          <button class="action-btn ab-del" onclick="deleteOrder('${o.id}')" title="Cancelar"><i class="fa-solid fa-ban"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('navBadgePedidos').textContent = orders.filter(o => o.status === 'pendente').length || '';
+}
+
+function filterOrders(status, el) {
+  document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = status;
+  renderOrdersTable(status);
+}
+
+function viewOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  document.getElementById('detailOrderId').innerHTML = `<i class="fa-solid fa-box" style="color:var(--red)"></i> Pedido #${o.id}`;
+  const tl = [
+    { title:'Pedido Recebido', time: o.time + ' – Hoje', state:'done' },
+    { title:'Motoboy Designado', time: o.motoboy, state: o.status === 'pendente' ? 'wait' : 'done' },
+    { title:'Em Rota', time:'A caminho', state: o.status === 'activo' ? 'active' : o.status === 'concluido' ? 'done' : 'wait' },
+    { title:'Entregue', time:'Destino final', state: o.status === 'concluido' ? 'done' : 'wait' },
+  ];
+  document.getElementById('orderDetailContent').innerHTML = `
+    <div class="detail-section">
+      <h4><i class="fa-solid fa-user"></i> Cliente</h4>
+      <div class="detail-row"><span class="detail-key">Nome</span><span class="detail-val">${o.client}</span></div>
+      <div class="detail-row"><span class="detail-key">Telefone</span><span class="detail-val">${o.phone}</span></div>
+    </div>
+    <div class="detail-section">
+      <h4><i class="fa-solid fa-route"></i> Rota</h4>
+      <div class="detail-row"><span class="detail-key"><i class="fa-solid fa-map-pin" style="color:var(--red)"></i> Recolha</span><span class="detail-val">${o.pickup}</span></div>
+      <div class="detail-row"><span class="detail-key"><i class="fa-solid fa-location-arrow" style="color:var(--green)"></i> Entrega</span><span class="detail-val">${o.delivery}</span></div>
+    </div>
+    <div class="detail-section">
+      <h4><i class="fa-solid fa-motorcycle"></i> Motoboy & Serviço</h4>
+      <div class="detail-row"><span class="detail-key">Motoboy</span><span class="detail-val">${o.motoboy}</span></div>
+      <div class="detail-row"><span class="detail-key">Serviço</span><span class="detail-val">${o.service}</span></div>
+      <div class="detail-row"><span class="detail-key">Valor</span><span class="detail-val" style="color:var(--green)">${o.value.toLocaleString()} AOA</span></div>
+      <div class="detail-row"><span class="detail-key">Estado</span><span class="detail-val"><span class="status-badge s-${o.status}">${statusLabel(o.status)}</span></span></div>
+    </div>
+    <div class="detail-section">
+      <h4><i class="fa-solid fa-timeline"></i> Progresso</h4>
+      <div class="timeline">
+        ${tl.map((t, i) => `
+          <div class="tl-item">
+            <div class="tl-left">
+              <div class="tl-dot tl-${t.state}">
+                <i class="fa-solid ${t.state==='done'?'fa-check':t.state==='active'?'fa-motorcycle':'fa-clock'}"></i>
+              </div>
+              ${i < tl.length-1 ? `<div class="tl-line ${t.state==='done'?'done-line':''}"></div>` : ''}
+            </div>
+            <div class="tl-content">
+              <div class="tl-title">${t.title}</div>
+              <div class="tl-time">${t.time}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  openModal('orderDetail');
+}
+
+function markDone(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  if (o.status === 'pendente') o.status = 'activo';
+  else if (o.status === 'activo') o.status = 'concluido';
+  renderOrdersTable(currentFilter);
+  renderRecentOrders();
+  showToast('Estado do pedido #' + id + ' actualizado!');
+}
+
+function deleteOrder(id) {
+  const o = orders.find(x => x.id === id);
+  if (!o) return;
+  o.status = 'cancelado';
+  renderOrdersTable(currentFilter);
+  renderRecentOrders();
+  showToast('Pedido #' + id + ' cancelado', true);
+}
+
+/* ============ MOTOBOYS TABLE ============ */
+function renderMotoboyTable() {
+  const tbody = document.getElementById('motoboyBody');
+  tbody.innerHTML = motoboys.map(m => `
+    <tr>
+      <td>
+        <div class="client-cell">
+          <div class="c-avatar-letter">${m.name.charAt(0)}</div>
+          <div><div class="c-name">${m.name}</div></div>
+        </div>
+      </td>
+      <td style="font-size:.82rem">${m.phone}</td>
+      <td style="font-size:.8rem;color:var(--gray)">${m.zone}</td>
+      <td>
+        <div class="availability">
+          <div class="avail-dot av-${m.status==='online'?'online':m.status==='ocupado'?'busy':'offline'}"></div>
+          <span style="font-size:.8rem">${m.status.charAt(0).toUpperCase()+m.status.slice(1)}</span>
+        </div>
+      </td>
+      <td style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--red)">${m.orders}</td>
+      <td>
+        <div class="stars-mini">
+          ${'<i class="fa-solid fa-star"></i>'.repeat(Math.floor(m.rating))}
+          <span style="color:var(--gray);margin-left:.2rem">${m.rating}</span>
+        </div>
+      </td>
+      <td style="font-size:.8rem;color:var(--gray)">${m.vehicle}</td>
+      <td>
+        <div class="action-btns">
+          <button class="action-btn ab-view" title="Ver perfil" onclick="viewMotoboy('${m.name}')"><i class="fa-solid fa-eye"></i></button>
+          <button class="action-btn ab-edit" title="Editar" onclick="editMotoboy('${m.name}')"><i class="fa-solid fa-pen"></i></button>
+          <button class="action-btn ab-del" title="Remover" onclick="deleteMotoboy('${m.name}')"><i class="fa-solid fa-trash"></i></button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function viewMotoboy(name) {
+  const m = motoboys.find(x => x.name === name);
+  if (!m) return;
+  const statusColor = m.status==='online'?'var(--green)':m.status==='ocupado'?'var(--yellow)':'var(--gray)';
+  const statusTxt   = m.status==='online'?'Online':m.status==='ocupado'?'Ocupado':'Offline';
+  const dotClass    = m.status==='online'?'av-online':m.status==='ocupado'?'av-busy':'av-offline';
+  document.getElementById('viewMotoboyTitle').innerHTML = `<i class="fa-solid fa-motorcycle" style="color:var(--red)"></i> ${m.name}`;
+  document.getElementById('viewMotoboyContent').innerHTML = `
+    <div style="text-align:center;padding:1.5rem 0 1rem;border-bottom:1px solid var(--border);margin-bottom:1.4rem">
+      <div style="width:80px;height:80px;border-radius:50%;background:rgba(232,0,29,.12);border:3px solid rgba(232,0,29,.3);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:2.2rem;color:var(--red);margin:0 auto 1rem">${m.name.charAt(0)}</div>
+      <div style="font-size:1.3rem;font-weight:800">${m.name}</div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.4rem">
+        <div class="avail-dot ${dotClass}"></div>
+        <span style="font-size:.85rem;color:${statusColor};font-weight:700">${statusTxt}</span>
+      </div>
+    </div>
+    <div class="detail-section">
+      <h4><i class="fa-solid fa-address-card"></i> Informações</h4>
+      <div class="detail-row"><span class="detail-key"><i class="fa-solid fa-phone" style="color:var(--red);margin-right:.4rem"></i>Telefone</span><span class="detail-val">${m.phone}</span></div>
+      <div class="detail-row"><span class="detail-key"><i class="fa-solid fa-map-location-dot" style="color:var(--red);margin-right:.4rem"></i>Zona</span><span class="detail-val">${m.zone}</span></div>
+      <div class="detail-row"><span class="detail-key"><i class="fa-solid fa-motorcycle" style="color:var(--red);margin-right:.4rem"></i>Mota</span><span class="detail-val">${m.vehicle}</span></div>
+    </div>
+    <div class="detail-section">
+      <h4><i class="fa-solid fa-chart-bar"></i> Desempenho</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;text-align:center;margin-top:.5rem">
+        <div style="background:rgba(232,0,29,.08);border:1px solid rgba(232,0,29,.15);border-radius:14px;padding:1rem">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--red)">${m.orders}</div>
+          <div style="font-size:.7rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:1px">Hoje</div>
+        </div>
+        <div style="background:rgba(245,197,24,.08);border:1px solid rgba(245,197,24,.15);border-radius:14px;padding:1rem">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--gold)">${m.rating}</div>
+          <div style="font-size:.7rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:1px">Rating</div>
+        </div>
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.15);border-radius:14px;padding:1rem">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--green)">98%</div>
+          <div style="font-size:.7rem;color:var(--gray);font-weight:700;text-transform:uppercase;letter-spacing:1px">Pontual</div>
+        </div>
+      </div>
+    </div>
+    <div class="detail-section" style="border:none;margin:0;padding-bottom:0">
+      <h4><i class="fa-solid fa-star"></i> Avaliação</h4>
+      <div style="display:flex;align-items:center;gap:.4rem;margin-top:.5rem">
+        ${Array.from({length:5},(_,i)=>`<i class="fa-solid fa-star" style="color:${i<Math.floor(m.rating)?'var(--gold)':'rgba(255,255,255,.1)'};font-size:1.3rem"></i>`).join('')}
+        <span style="margin-left:.5rem;font-size:1rem;font-weight:800">${m.rating} / 5.0</span>
+      </div>
+    </div>
+  `;
+  document.getElementById('viewMotoboyEditBtn').onclick = () => { closeModal('viewMotoboy'); editMotoboy(name); };
+  openModal('viewMotoboy');
+}
+
+function editMotoboy(name) {
+  const m = motoboys.find(x => x.name === name);
+  if (!m) return;
+  document.getElementById('editMotoboyOrigName').value = m.name;
+  document.getElementById('editMName').value    = m.name;
+  document.getElementById('editMPhone').value   = m.phone;
+  document.getElementById('editMZone').value    = m.zone;
+  document.getElementById('editMStatus').value  = m.status;
+  document.getElementById('editMVehicle').value = m.vehicle;
+  document.getElementById('editMOrders').value  = m.orders;
+  document.getElementById('editMRating').value  = m.rating;
+  openModal('editMotoboy');
+}
+
+function saveEditMotoboy() {
+  const origName = document.getElementById('editMotoboyOrigName').value;
+  const m = motoboys.find(x => x.name === origName);
+  if (!m) return;
+  m.name    = document.getElementById('editMName').value.trim()   || m.name;
+  m.phone   = document.getElementById('editMPhone').value.trim()  || m.phone;
+  m.zone    = document.getElementById('editMZone').value.trim()   || m.zone;
+  m.status  = document.getElementById('editMStatus').value;
+  m.vehicle = document.getElementById('editMVehicle').value.trim()|| m.vehicle;
+  m.orders  = parseInt(document.getElementById('editMOrders').value)  || 0;
+  m.rating  = parseFloat(document.getElementById('editMRating').value)|| m.rating;
+  renderMotoboyTable();
+  renderMotoboyStatus();
+  closeModal('editMotoboy');
+  showToast('Motoboy ' + m.name + ' actualizado!');
+}
+
+function deleteMotoboy(name) {
+  if (!confirm('Tem a certeza que deseja remover ' + name + '?')) return;
+  const idx = motoboys.findIndex(x => x.name === name);
+  if (idx === -1) return;
+  motoboys.splice(idx, 1);
+  renderMotoboyTable();
+  renderMotoboyStatus();
+  showToast('Motoboy removido!', true);
+}
+
+/* ============ CLIENTS GRID ============ */
+function renderClientsGrid() {
+  const grid = document.getElementById('clientsGrid');
+  const tagMap = { vip:'tag-vip', regular:'tag-regular', empresa:'tag-empresa', new:'tag-new' };
+  const tagLbl = { vip:'VIP', regular:'Regular', empresa:'Empresa', new:'Novo' };
+  grid.innerHTML = clients.map(c => `
+    <div class="client-card">
+      <div class="c-avatar-lg">${c.name.charAt(0)}</div>
+      <h3>${c.name}</h3>
+      <div class="c-info">
+        <span><i class="fa-solid fa-phone"></i>${c.phone}</span>
+        <span><i class="fa-solid fa-location-dot"></i>${c.zone}</span>
+      </div>
+      <div class="client-stats-mini">
+        <div style="text-align:center"><div class="csm-num">${c.orders}</div><div class="csm-lbl">Pedidos</div></div>
+        <div style="text-align:center"><div class="csm-num">${(c.spent/1000).toFixed(0)}K</div><div class="csm-lbl">AOA gastos</div></div>
+      </div>
+      <div class="client-tags">
+        <span class="tag ${tagMap[c.type]}">${tagLbl[c.type]}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ============ MODALS ============ */
+function openModal(id) {
+  document.getElementById('modal-' + id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById('modal-' + id).classList.remove('open');
+}
+// close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(ov => {
+  ov.addEventListener('click', e => { if (e.target === ov) ov.classList.remove('open'); });
+});
+
+/* ============ SAVE ACTIONS ============ */
+function saveOrder() {
+  const newId = 'FM-0' + (parseInt(orders[0].id.split('-')[1]) + 1);
+  orders.unshift({ id: newId, client:'Novo Cliente', phone:'+244 9XX XXX XXX', service:'Entrega Motoboy', pickup:'Local A', delivery:'Local B', motoboy:'Carlos Mota', status:'pendente', time: new Date().toLocaleTimeString('pt-AO',{hour:'2-digit',minute:'2-digit'}), value:2000 });
+  renderOrdersTable(currentFilter);
+  renderRecentOrders();
+  document.getElementById('statTotal').textContent = orders.length;
+  closeModal('newOrder');
+  showToast('Pedido #' + newId + ' criado com sucesso!');
+}
+
+function saveMotoboy() {
+  motoboys.push({ name:'Novo Motoboy', phone:'+244 900 000 000', zone:'Luanda', status:'offline', orders:0, rating:5.0, vehicle:'–' });
+  renderMotoboyTable();
+  renderMotoboyStatus();
+  closeModal('newMotoboy');
+  showToast('Motoboy adicionado com sucesso!');
+}
+
+function saveClient() {
+  clients.push({ name:'Novo Cliente', phone:'+244 900 000 000', zone:'Luanda', orders:0, spent:0, type:'new' });
+  renderClientsGrid();
+  closeModal('newClient');
+  showToast('Cliente adicionado com sucesso!');
+}
+
+/* ============ TOAST ============ */
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  const icon = document.getElementById('toastIcon');
+  document.getElementById('toastMsg').textContent = msg;
+  if (isError) { t.classList.add('error'); icon.className = 'fa-solid fa-circle-exclamation toast-icon'; }
+  else { t.classList.remove('error'); icon.className = 'fa-solid fa-circle-check toast-icon'; }
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ============ AUTO-REFRESH BADGE ============ */
+setInterval(() => {
+  const pending = orders.filter(o => o.status === 'pendente').length;
+  document.getElementById('navBadgePedidos').textContent = pending || '';
+}, 5000);
+</script>
+</body>
+</html>
